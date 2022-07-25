@@ -102,6 +102,16 @@ impl MmioSerialPort {
             self_data.read()
         }
     }
+
+    /// Receives a byte if any are available, otherwise returns none.
+    pub fn try_receive(&mut self) -> Option<u8> {
+        if self.line_sts().contains(LineStsFlags::INPUT_FULL) {
+            let self_data = self.data.load(Ordering::Relaxed);
+            Some(unsafe { self_data.read() })
+        } else {
+            None
+        }
+    }
 }
 
 impl fmt::Write for MmioSerialPort {
